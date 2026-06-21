@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "seed:investors": "node --env-file=.env.local --import tsx scripts/seed-featured-investors.ts",
     "sync:sec:browser": "node --env-file=.env.local --conditions=react-server --import tsx scripts/sync-sec-browser.ts"
   },
   "dependencies": {

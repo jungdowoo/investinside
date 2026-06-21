@@ -182,7 +182,8 @@ Vercel Cron은 `CRON_SECRET`이 설정되면 `Authorization: Bearer <CRON_SECRET
 SEC가 Vercel과 GitHub Actions의 공유 클라우드 IP를 차단하므로, 수집 작업은 로컬 Windows PC의 Microsoft Edge를 사용합니다. 웹사이트와 데이터베이스는 계속 Vercel과 Supabase에서 운영됩니다.
 
 ```powershell
+pnpm seed:investors
 pnpm sync:sec:browser
 ```
 
-이 명령은 `.env.local`의 Supabase 및 SEC 설정을 사용해 공식 SEC EDGAR 자료만 조회하고 Supabase에 저장합니다. `scripts/run-sec-sync.cmd`는 Windows 작업 스케줄러용 실행 파일이며 로그는 `logs/sec-sync.log`에 기록됩니다.
+`seed:investors`는 사전에 지정된 CIK의 공식 기관명과 최근 13F 제출 여부를 SEC submissions 원문에서 다시 검증한 뒤에만 투자자 목록을 저장합니다. `sync:sec:browser`는 `.env.local`의 Supabase 및 SEC 설정을 사용해 공식 SEC EDGAR 자료만 조회하고 Supabase에 저장합니다. `scripts/run-sec-sync.cmd`는 Windows 작업 스케줄러용 실행 파일이며 로그는 `logs/sec-sync.log`에 기록됩니다.
