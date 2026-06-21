@@ -1,0 +1,11 @@
+"use client";
+
+import { createBrowserClient } from "@supabase/ssr";
+import { getPublicKey } from "./env";
+
+export function createSupabaseBrowserClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = getPublicKey();
+  if (!url || !key) throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+  return createBrowserClient(url, key);
+}

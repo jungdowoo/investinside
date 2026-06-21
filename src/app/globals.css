@@ -1,26 +1,18 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+:root { --background: #f8fafc; --foreground: #0f172a; }
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+a { transition: color 150ms, background-color 150ms, border-color 150ms; }
+summary { cursor: pointer; }
+.prose-fi h2 { margin-top: 2.5rem; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.025em; color: #0f172a; }
+.prose-fi h3 { margin-top: 2rem; font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+.prose-fi p { margin-top: 1rem; line-height: 1.9; color: #475569; }
+.prose-fi ul { margin-top: 1rem; list-style: disc; padding-left: 1.4rem; color: #475569; }
+.prose-fi li { margin-top: .5rem; line-height: 1.75; }

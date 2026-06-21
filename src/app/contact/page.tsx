@@ -1,0 +1,6 @@
+import type { Metadata } from "next";
+import { Mail, MessageSquareText } from "lucide-react";
+import { Container, PageHeader } from "@/components/ui";
+
+export const metadata: Metadata = { title: "문의", description: "FolioInside 데이터 정정 및 서비스 문의 안내" };
+export default function ContactPage() { const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "contact@example.com"; return <Container className="pb-16"><PageHeader eyebrow="Contact" title="문의하기" description="공시 연결 오류, CUSIP·ticker 별칭 정정, 개인정보와 서비스 운영 문의를 받습니다." /><div className="max-w-2xl rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"><Mail className="size-7 text-emerald-600" /><h2 className="mt-5 text-xl font-black">이메일</h2><a href={`mailto:${email}`} className="mt-2 inline-block font-bold text-emerald-700 hover:underline">{email}</a><div className="mt-7 border-t border-slate-100 pt-6"><div className="flex gap-3"><MessageSquareText className="mt-1 size-5 shrink-0 text-slate-400" /><div><p className="font-bold">데이터 정정 문의 시</p><p className="mt-2 text-sm leading-6 text-slate-500">기관명, CIK, accession number, SEC 원문 URL과 오류로 보이는 화면 주소를 함께 보내주세요. 투자 상담이나 종목 추천 요청에는 답변하지 않습니다.</p></div></div></div></div></Container>; }

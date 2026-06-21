@@ -1,65 +1,21 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Building2, CalendarDays, Database, Layers3, ShieldCheck, Sparkles } from "lucide-react";
+import { DataNotice } from "@/components/data-notice";
+import { Container, EmptyState, Pill, SectionTitle } from "@/components/ui";
+import { learnPosts } from "@/content/learn/posts";
+import { formatDate, formatMoney } from "@/lib/format";
+import { getInvestors, getOverlap, getRecentFilings, getRecentNewPositions } from "@/lib/data/public";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+export default async function HomePage() {
+  const [investors, filings, overlap, newPositions] = await Promise.all([getInvestors(), getRecentFilings(5), getOverlap(), getRecentNewPositions(6)]);
+  return <>
+    <section className="overflow-hidden border-b border-slate-200 bg-white"><Container className="grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-[1.2fr_.8fr] lg:py-24"><div><div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-800"><ShieldCheck className="size-4" /> SEC 공식 공개 공시만 사용</div><h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.12] tracking-tight text-slate-950 sm:text-6xl">유명 운용사의 포트폴리오,<br /><span className="text-emerald-600">공시 그대로 읽기</span></h1><p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">SEC Form 13F 원문에서 직접 수집한 보유 종목과 분기별 변화를 쉽고 투명하게 살펴보세요. 실시간 시세나 매수 추천은 제공하지 않습니다.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/investors" className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">투자자 살펴보기 <ArrowRight className="size-4" /></Link><Link href="/learn/what-is-13f" className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 hover:border-emerald-400">13F 먼저 이해하기</Link></div></div><div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-xl shadow-slate-200/40 sm:p-7"><div className="flex items-center gap-3 border-b border-slate-200 pb-5"><div className="rounded-xl bg-emerald-600 p-3 text-white"><Database className="size-6" /></div><div><p className="font-black">데이터 흐름</p><p className="text-sm text-slate-500">가공 출처 없이 SEC에서 직접</p></div></div><ol className="mt-5 space-y-4">{["SEC submissions에서 새 13F 확인", "Information Table XML 원문 파싱", "CUSIP 기준 분기 변화 계산", "보고 기준일과 제출일을 함께 표시"].map((item, index) => <li key={item} className="flex gap-3 text-sm font-semibold text-slate-700"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-white text-xs font-black text-emerald-700 shadow-sm">{index + 1}</span>{item}</li>)}</ol></div></Container></section>
+    <Container className="space-y-14 py-12 sm:py-16"><DataNotice />
+      <section><SectionTitle title="추적 중인 투자자·기관" description="표시 인물과 관련된 운용사의 13F 제출을 기준으로 합니다." href="/investors" /><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{investors.map((investor) => <Link key={investor.id} href={`/investors/${investor.slug}`} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-emerald-300"><div className="flex items-start justify-between"><div className="grid size-11 place-items-center rounded-xl bg-slate-100 font-black text-slate-700">{investor.display_name.slice(0, 1)}</div><Pill tone="green">추적 중</Pill></div><h3 className="mt-5 font-black text-slate-950">{investor.display_name}</h3><p className="mt-1 text-sm text-slate-500">{investor.firm_name}</p><p className="mt-4 text-xs text-slate-400">CIK {investor.cik}</p></Link>)}</div></section>
+      <section className="grid gap-8 lg:grid-cols-2"><div><SectionTitle title="최근 제출된 13F" description="제출일 기준 최신 공시" />{filings.length ? <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">{filings.map((filing) => <Link key={filing.id} href={`/investors/${filing.investor?.slug}`} className="flex items-center justify-between gap-4 border-b border-slate-100 p-4 last:border-0 hover:bg-slate-50"><div><p className="font-bold text-slate-900">{filing.investor?.display_name ?? "기관"}</p><p className="mt-1 text-xs text-slate-500">보고 기준일 {formatDate(filing.report_date)}</p></div><span className="flex items-center gap-1 text-xs font-semibold text-slate-500"><CalendarDays className="size-4" /> {formatDate(filing.filing_date)}</span></Link>)}</div> : <EmptyState title="수집된 filing이 없습니다" description="Supabase 연결 후 관리자에서 동기화를 실행하면 SEC의 최신 공시가 여기에 표시됩니다." />}</div>
+        <div><SectionTitle title="여러 기관이 함께 보유" description="최신 보고 분기의 CUSIP 기준" href="/overlap" />{overlap.length ? <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">{overlap.slice(0, 5).map((item) => <div key={item.key} className="flex items-center justify-between gap-4 border-b border-slate-100 p-4 last:border-0"><div><p className="font-bold text-slate-900">{item.ticker ?? item.issuerName}</p><p className="mt-1 text-xs text-slate-500">{item.ticker ? item.issuerName : `CUSIP ${item.cusip}`}</p></div><Pill tone="blue">{item.owners.length}개 기관</Pill></div>)}</div> : <EmptyState title="겹치는 종목이 아직 없습니다" description="2개 이상의 활성 기관 데이터가 수집되면 공통 보유 종목을 자동 계산합니다." />}</div></section>
+      <section><SectionTitle title="최근 분기 신규 편입" description="이전 정보표에 없고 현재 정보표에 나타난 CUSIP 기준" />{newPositions.length ? <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">{newPositions.map((item) => <div key={`${item.current_filing_id}-${item.cusip}`} className="rounded-2xl border border-slate-200 bg-white p-5"><Sparkles className="size-5 text-emerald-600" /><p className="mt-3 font-black">{item.ticker ?? item.issuer_name}</p><p className="mt-1 text-xs text-slate-500">{item.investor?.display_name} · {formatMoney(item.current_value_usd)}</p></div>)}</div> : <EmptyState title="비교 가능한 신규 편입 데이터가 없습니다" description="최소 두 개 분기의 공시가 수집되면 신규 편입과 수량 변화를 분류합니다." />}</section>
+      <section><SectionTitle title="공시를 제대로 읽는 법" description="매매 신호보다 먼저 알아야 할 개념" href="/learn" /><div className="grid gap-4 md:grid-cols-3">{learnPosts.slice(0, 3).map((post, index) => <Link key={post.slug} href={`/learn/${post.slug}`} className="rounded-2xl bg-slate-950 p-6 text-white hover:bg-emerald-900"><div className="flex items-center gap-2 text-xs font-bold text-emerald-300">{index === 0 ? <Building2 className="size-4" /> : index === 1 ? <Layers3 className="size-4" /> : <Sparkles className="size-4" />}{post.category}</div><h3 className="mt-5 text-xl font-black leading-8">{post.title}</h3><p className="mt-3 text-sm leading-6 text-slate-300">{post.description}</p></Link>)}</div></section>
+    </Container>
+  </>;
 }
