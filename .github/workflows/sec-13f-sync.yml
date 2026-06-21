@@ -1,0 +1,90 @@
+name: Sync SEC 13F data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sec-13f-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build collector app
+        run: pnpm build
+
+      - name: Start collector app
+        run: |
+          pnpm start > /tmp/investinside.log 2>&1 &
+          echo $! > /tmp/investinside.pid
+          for attempt in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:3000/ > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/investinside.log
+          exit 1
+
+      - name: Collect and store SEC filings
+        run: |
+          response="$(curl --silent --show-error --fail-with-body \
+            --max-time 300 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            --request POST \
+            http://127.0.0.1:3000/api/cron/sync-13f)"
+          SYNC_RESPONSE="$response" node <<'NODE'
+          const payload = JSON.parse(process.env.SYNC_RESPONSE);
+          const failures = (payload.results ?? []).flatMap((result) =>
+            (result.errors ?? []).map((error) => `${result.investor}: ${error}`),
+          );
+          const processed = (payload.results ?? []).reduce(
+            (total, result) => total + (result.processed ?? 0),
+            0,
+          );
+          const skipped = (payload.results ?? []).reduce(
+            (total, result) => total + (result.skipped ?? 0),
+            0,
+          );
+          console.log(`Processed ${processed}, skipped ${skipped}`);
+          if (!payload.ok || failures.length > 0) {
+            console.error(failures.join("\n") || payload.error || "SEC sync failed");
+            process.exit(1);
+          }
+          NODE
+
+      - name: Print server log on failure
+        if: failure()
+        run: cat /tmp/investinside.log || true
