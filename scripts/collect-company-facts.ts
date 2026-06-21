@@ -1,9 +1,7 @@
-import { writeFile } from "node:fs/promises";
-import { createClient } from "@supabase/supabase-js";
+import { readFile, writeFile } from "node:fs/promises";
 import { chromium } from "playwright-core";
 
 const executablePath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
-type SecTickerEntry = { cik_str: number; ticker: string; title: string };
 type FactRow = { val: number; end: string; filed: string; form: string; fy?: number; fp?: string };
 type FactDefinition = { units?: Record<string, FactRow[]> };
 const metricSpecs = {
@@ -14,41 +12,39 @@ const metricSpecs = {
   liabilities: { label: "총부채", unit: "USD", tags: ["Liabilities"] },
   equity: { label: "자본", unit: "USD", tags: ["StockholdersEquity", "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"] },
   epsDiluted: { label: "희석 EPS", unit: "USD/shares", tags: ["EarningsPerShareDiluted"] },
+  dividendPerShare: { label: "주당 배당금", unit: "USD/shares", tags: ["CommonStockDividendsPerShareDeclared", "CommonStockDividendsPerShareCashPaid"] },
+  dividendsPaid: { label: "보통주 배당 지급액", unit: "USD", tags: ["PaymentsOfDividendsCommonStock", "PaymentsOfDividends"] },
   operatingCashFlow: { label: "영업현금흐름", unit: "USD", tags: ["NetCashProvidedByUsedInOperatingActivities"] },
 } as const;
 
 function env(name: string) { const value = process.env[name]?.trim(); if (!value) throw new Error(`${name} is required`); return value; }
 
 async function main() {
-  const db = createClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("SUPABASE_SECRET_KEY"), { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data: aliases, error } = await db.from("stock_aliases").select("ticker").not("ticker", "is", null);
-  if (error) throw error;
-  const tickers = [...new Set((aliases ?? []).map((row) => String(row.ticker).toUpperCase()))].sort();
+  const existing = JSON.parse(await readFile("src/data/sec-company-facts.json", "utf8")) as Record<string, { cik: string }>;
+  const tickers = Object.keys(existing).sort();
   const browser = await chromium.launch({ executablePath, headless: false });
-  const output: Record<string, unknown> = {};
+  const output: Record<string, unknown> = { ...existing };
   try {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.setExtraHTTPHeaders({ from: env("SEC_USER_AGENT"), accept: "application/json" });
-    const tickerResponse = await page.goto("https://www.sec.gov/files/company_tickers.json", { waitUntil: "domcontentloaded", timeout: 60_000 });
-    if (!tickerResponse?.ok()) throw new Error(`SEC ticker list failed (${tickerResponse?.status()})`);
-    const tickerPayload = JSON.parse((await tickerResponse.body()).toString("utf8")) as Record<string, SecTickerEntry>;
-    const byTicker = new Map(Object.values(tickerPayload).map((item) => [String(item.ticker).toUpperCase(), item]));
-
     for (const ticker of tickers) {
-      const company = byTicker.get(ticker) as { cik_str: number } | undefined;
-      if (!company) { console.log(`Skip ${ticker}: no SEC company ticker match`); continue; }
-      const cik = String(company.cik_str).padStart(10, "0");
-      const response = await page.goto(`https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-      if (!response?.ok()) { console.log(`Skip ${ticker}: companyfacts ${response?.status()}`); continue; }
-      const payload = JSON.parse((await response.body()).toString("utf8"));
-      const metrics: Record<string, unknown> = {};
-      for (const [key, spec] of Object.entries(metricSpecs)) {
-        const metric = extractMetric(payload.facts?.["us-gaap"], spec);
-        if (metric) metrics[key] = metric;
+      const cik = existing[ticker]?.cik;
+      if (!cik) { console.log(`Skip ${ticker}: no stored SEC CIK`); continue; }
+      try {
+        const response = await page.goto(`https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+        if (!response?.ok()) { console.log(`Skip ${ticker}: companyfacts ${response?.status()}`); continue; }
+        const payload = JSON.parse((await response.body()).toString("utf8"));
+        const metrics: Record<string, unknown> = {};
+        for (const [key, spec] of Object.entries(metricSpecs)) {
+          const metric = extractMetric(payload.facts?.["us-gaap"], spec);
+          if (metric) metrics[key] = metric;
+        }
+        output[ticker] = { ticker, cik, entityName: payload.entityName, sic: payload.sic, sicDescription: payload.sicDescription, stateOfIncorporation: payload.stateOfIncorporation, fiscalYearEnd: payload.fiscalYearEnd, metrics };
+        console.log(`Collected ${ticker}: ${Object.keys(metrics).length} metrics`);
+      } catch (error) {
+        console.log(`Skip ${ticker}: ${error instanceof Error ? error.message : error}`);
       }
-      output[ticker] = { ticker, cik, entityName: payload.entityName, sic: payload.sic, sicDescription: payload.sicDescription, stateOfIncorporation: payload.stateOfIncorporation, fiscalYearEnd: payload.fiscalYearEnd, metrics };
-      console.log(`Collected ${ticker}: ${Object.keys(metrics).length} metrics`);
       await new Promise((resolve) => setTimeout(resolve, 150));
     }
   } finally { await browser.close(); }

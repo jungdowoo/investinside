@@ -10,6 +10,7 @@
     "seed:investors": "node --env-file=.env.local --import tsx scripts/seed-featured-investors.ts",
     "seed:stock-aliases": "node --env-file=.env.local --import tsx scripts/seed-stock-aliases.ts",
     "collect:company-facts": "node --env-file=.env.local --import tsx scripts/collect-company-facts.ts",
+    "collect:exchange-rate": "node --env-file=.env.local --import tsx scripts/collect-exchange-rate.ts",
     "sync:sec:browser": "node --env-file=.env.local --conditions=react-server --import tsx scripts/sync-sec-browser.ts"
   },
   "dependencies": {
