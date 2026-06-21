@@ -5,6 +5,7 @@ import { hasSupabasePublicEnv } from "@/lib/supabase/env";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Filing, Holding, HoldingChange, Investor, InvestorSnapshot, OverlapItem } from "@/types/domain";
 import { calculateOverlap } from "@/lib/holdings/overlap";
+import { formatStockLabel } from "@/lib/stock-labels";
 
 function warn(error: unknown) {
   if (process.env.NODE_ENV !== "production") console.warn("FolioInside data query:", error);
@@ -144,7 +145,7 @@ export const searchStocks = cache(async (query = "") => {
   const needle = query.trim().toLowerCase();
   const unique = new Map<string, Holding>();
   for (const holding of holdings) {
-    if (needle && !holding.issuer_name.toLowerCase().includes(needle) && !holding.ticker?.toLowerCase().includes(needle) && !holding.cusip.toLowerCase().includes(needle)) continue;
+    if (needle && !formatStockLabel(holding.ticker, holding.issuer_name).toLowerCase().includes(needle) && !holding.cusip.toLowerCase().includes(needle)) continue;
     unique.set(holding.ticker ?? `cusip:${holding.cusip}`, holding);
   }
   return [...unique.values()].sort((a, b) => b.value_usd - a.value_usd).slice(0, 100);

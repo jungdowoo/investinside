@@ -1,5 +1,6 @@
 import type { Holding } from "@/types/domain";
 import { formatPercent } from "@/lib/format";
+import { formatStockLabel } from "@/lib/stock-labels";
 
 const COLORS = [
   "#059669",
@@ -22,7 +23,7 @@ export function PortfolioDonutChart({ holdings }: { holdings: Holding[] }) {
     const key = holding.ticker ?? holding.cusip;
     const current = grouped.get(key);
     grouped.set(key, {
-      label: holding.ticker ?? holding.issuer_name,
+      label: formatStockLabel(holding.ticker, holding.issuer_name),
       weight: (current?.weight ?? 0) + Number(holding.portfolio_weight),
     });
   }

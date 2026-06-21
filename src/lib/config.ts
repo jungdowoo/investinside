@@ -16,7 +16,7 @@ export const DATA_NOTICES = [
 export const BERKSHIRE_SEED: Investor = {
   id: "00000000-0000-0000-0000-000000000001",
   slug: "warren-buffett-berkshire-hathaway",
-  display_name: "Warren Buffett",
+  display_name: "워런 버핏 (Warren Buffett)",
   investor_name: "Warren Buffett",
   firm_name: "BERKSHIRE HATHAWAY INC",
   cik: "0001067983",

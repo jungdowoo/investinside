@@ -13,7 +13,7 @@ const candidates = [
   {
     cik: "0001350694",
     slug: "ray-dalio-bridgewater-associates",
-    display_name: "Ray Dalio",
+    display_name: "레이 달리오 (Ray Dalio)",
     investor_name: "Ray Dalio",
     expectedName: "BRIDGEWATER ASSOCIATES",
     description: "Ray Dalio와 관련해 널리 알려진 Bridgewater Associates의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
@@ -22,7 +22,7 @@ const candidates = [
   {
     cik: "0001649339",
     slug: "michael-burry-scion-asset-management",
-    display_name: "Michael Burry",
+    display_name: "마이클 버리 (Michael Burry)",
     investor_name: "Michael Burry",
     expectedName: "SCION ASSET MANAGEMENT",
     description: "Michael Burry와 관련해 알려진 Scion Asset Management의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
@@ -31,7 +31,7 @@ const candidates = [
   {
     cik: "0001336528",
     slug: "bill-ackman-pershing-square",
-    display_name: "Bill Ackman",
+    display_name: "빌 애크먼 (Bill Ackman)",
     investor_name: "Bill Ackman",
     expectedName: "PERSHING SQUARE CAPITAL MANAGEMENT",
     description: "Bill Ackman과 관련해 알려진 Pershing Square Capital Management의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
@@ -40,7 +40,7 @@ const candidates = [
   {
     cik: "0001536411",
     slug: "stanley-druckenmiller-duquesne-family-office",
-    display_name: "Stanley Druckenmiller",
+    display_name: "스탠리 드러켄밀러 (Stanley Druckenmiller)",
     investor_name: "Stanley Druckenmiller",
     expectedName: "DUQUESNE FAMILY OFFICE",
     description: "Stanley Druckenmiller와 관련해 알려진 Duquesne Family Office의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
@@ -49,7 +49,7 @@ const candidates = [
   {
     cik: "0001656456",
     slug: "david-tepper-appaloosa",
-    display_name: "David Tepper",
+    display_name: "데이비드 테퍼 (David Tepper)",
     investor_name: "David Tepper",
     expectedName: "APPALOOSA",
     description: "David Tepper와 관련해 알려진 Appaloosa의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
@@ -58,7 +58,7 @@ const candidates = [
   {
     cik: "0001029160",
     slug: "george-soros-soros-fund-management",
-    display_name: "George Soros",
+    display_name: "조지 소로스 (George Soros)",
     investor_name: "George Soros",
     expectedName: "SOROS FUND MANAGEMENT",
     description: "George Soros와 관련해 알려진 Soros Fund Management의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
@@ -67,7 +67,7 @@ const candidates = [
   {
     cik: "0001061768",
     slug: "seth-klarman-baupost-group",
-    display_name: "Seth Klarman",
+    display_name: "세스 클라먼 (Seth Klarman)",
     investor_name: "Seth Klarman",
     expectedName: "BAUPOST GROUP",
     description: "Seth Klarman과 관련해 알려진 Baupost Group의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
@@ -135,6 +135,11 @@ async function main() {
 
     const { error } = await db.from("investors").upsert(verified, { onConflict: "slug" });
     if (error) throw error;
+    const { error: berkshireError } = await db
+      .from("investors")
+      .update({ display_name: "워런 버핏 (Warren Buffett)" })
+      .eq("slug", "warren-buffett-berkshire-hathaway");
+    if (berkshireError) throw berkshireError;
     console.log(`Stored ${verified.length} verified SEC 13F managers.`);
   } finally {
     await browser.close();
