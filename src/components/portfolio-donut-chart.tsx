@@ -1,76 +1,43 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import type { Holding } from "@/types/domain";
 import { formatPercent } from "@/lib/format";
 import { formatStockLabel } from "@/lib/stock-labels";
 
-const COLORS = [
-  "#059669",
-  "#0d9488",
-  "#0891b2",
-  "#2563eb",
-  "#4f46e5",
-  "#7c3aed",
-  "#c026d3",
-  "#db2777",
-  "#ea580c",
-  "#ca8a04",
-];
-
-type Slice = { key: string; label: string; weight: number; color: string };
+const COLORS = ["#059669", "#0d9488", "#0891b2", "#2563eb", "#4f46e5", "#7c3aed", "#c026d3", "#db2777", "#ea580c", "#ca8a04"];
+type Slice = { key: string; ticker: string | null; label: string; weight: number; color: string; start: number };
 
 export function PortfolioDonutChart({ holdings }: { holdings: Holding[] }) {
-  const grouped = new Map<string, { label: string; weight: number }>();
+  const router = useRouter();
+  const [hovered, setHovered] = useState<string | null>(null);
+  const grouped = new Map<string, { ticker: string | null; label: string; weight: number }>();
   for (const holding of holdings) {
     const key = holding.ticker ?? holding.cusip;
     const current = grouped.get(key);
-    grouped.set(key, {
-      label: formatStockLabel(holding.ticker, holding.issuer_name),
-      weight: (current?.weight ?? 0) + Number(holding.portfolio_weight),
-    });
+    grouped.set(key, { ticker: holding.ticker, label: formatStockLabel(holding.ticker, holding.issuer_name), weight: (current?.weight ?? 0) + Number(holding.portfolio_weight) });
   }
-
-  const sorted = [...grouped.entries()]
-    .map(([key, item]) => ({ key, ...item }))
-    .sort((a, b) => b.weight - a.weight);
+  const sorted = [...grouped.entries()].map(([key, item]) => ({ key, ...item })).sort((a, b) => b.weight - a.weight);
   const top = sorted.slice(0, 10);
   const otherWeight = sorted.slice(10).reduce((sum, item) => sum + item.weight, 0);
-  const slices: Slice[] = top.map((item, index) => ({ ...item, color: COLORS[index] }));
-  if (otherWeight > 0.005) slices.push({ key: "other", label: "기타 종목", weight: otherWeight, color: "#cbd5e1" });
-  const chartSlices = slices.map((slice, index) => ({
-    ...slice,
-    start: slices.slice(0, index).reduce((sum, item) => sum + item.weight, 0),
-  }));
-  return <div className="mt-6 grid items-center gap-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:grid-cols-[minmax(240px,.8fr)_1.2fr]">
-    <div className="mx-auto w-full max-w-[320px]">
+  const base = top.map((item, index) => ({ ...item, color: COLORS[index] }));
+  if (otherWeight > 0.005) base.push({ key: "other", ticker: null, label: "기타 종목", weight: otherWeight, color: "#cbd5e1" });
+  const slices: Slice[] = base.map((slice, index) => ({ ...slice, start: base.slice(0, index).reduce((sum, item) => sum + item.weight, 0) }));
+  const active = slices.find((slice) => slice.key === hovered) ?? null;
+
+  return <div className="mt-6 grid items-center gap-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:grid-cols-[minmax(260px,.8fr)_1.2fr]">
+    <div className="relative mx-auto w-full max-w-[340px]">
       <svg viewBox="0 0 200 200" role="img" aria-labelledby="portfolio-chart-title portfolio-chart-desc" className="h-auto w-full">
-        <title id="portfolio-chart-title">13F 보고 가치 기준 포트폴리오 구성</title>
-        <desc id="portfolio-chart-desc">상위 10개 보유 종목과 나머지 종목의 보고 가치 비중을 나타낸 도넛 차트</desc>
-        <circle cx="100" cy="100" r="70" fill="none" stroke="#f1f5f9" strokeWidth="30" />
-        {chartSlices.map((slice) => {
-          const visibleWeight = Math.max(0, slice.weight - 0.45);
-          return <circle
-            key={slice.key}
-            cx="100"
-            cy="100"
-            r="70"
-            fill="none"
-            pathLength="100"
-            stroke={slice.color}
-            strokeWidth="30"
-            strokeDasharray={`${visibleWeight} ${100 - visibleWeight}`}
-            strokeDashoffset={-slice.start}
-            transform="rotate(-90 100 100)"
-          />;
-        })}
-        <text x="100" y="94" textAnchor="middle" className="fill-slate-950 text-[18px] font-black">{sorted.length}</text>
-        <text x="100" y="113" textAnchor="middle" className="fill-slate-500 text-[9px] font-bold">보고 종목</text>
+        <title id="portfolio-chart-title">13F 보고 가치 기준 포트폴리오 구성</title><desc id="portfolio-chart-desc">조각에 마우스를 올리면 종목명과 비중을 확인하고, 클릭하면 종목 상세 페이지로 이동할 수 있습니다.</desc>
+        <circle cx="100" cy="100" r="70" fill="none" stroke="#f1f5f9" strokeWidth="31" />
+        {slices.map((slice) => { const visibleWeight = Math.max(0, slice.weight - 0.45); const interactive = Boolean(slice.ticker); return <circle key={slice.key} cx="100" cy="100" r="70" fill="none" pathLength="100" stroke={slice.color} strokeWidth={hovered === slice.key ? 35 : 30} strokeDasharray={`${visibleWeight} ${100 - visibleWeight}`} strokeDashoffset={-slice.start} transform="rotate(-90 100 100)" className={`outline-none transition-all duration-150 ${interactive ? "cursor-pointer" : ""}`} tabIndex={interactive ? 0 : -1} role={interactive ? "link" : undefined} aria-label={`${slice.label} ${formatPercent(slice.weight)}`} onMouseEnter={() => setHovered(slice.key)} onMouseLeave={() => setHovered(null)} onFocus={() => setHovered(slice.key)} onBlur={() => setHovered(null)} onClick={() => slice.ticker && router.push(`/stocks/${slice.ticker.toLowerCase()}`)} onKeyDown={(event) => { if (slice.ticker && (event.key === "Enter" || event.key === " ")) router.push(`/stocks/${slice.ticker.toLowerCase()}`); }} />; })}
       </svg>
+      <div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><div className="max-w-32"><p className="line-clamp-2 text-sm font-black leading-5 text-slate-950">{active?.label ?? `${sorted.length}개 종목`}</p><p className="mt-1 text-xs font-bold text-emerald-700">{active ? formatPercent(active.weight) : "마우스를 올려보세요"}</p></div></div>
     </div>
-    <ol className="grid gap-x-6 gap-y-3 sm:grid-cols-2" aria-label="포트폴리오 구성 범례">
-      {slices.map((slice, index) => <li key={slice.key} className="flex min-w-0 items-center gap-3 text-sm">
-        <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: slice.color }} />
-        <span className="min-w-0 flex-1 truncate font-bold"><span className="mr-1 text-slate-400">{slice.key === "other" ? "" : `${index + 1}.`}</span>{slice.label}</span>
-        <span className="shrink-0 font-mono text-xs text-slate-500">{formatPercent(slice.weight)}</span>
-      </li>)}
-    </ol>
+    <ol className="grid gap-x-6 gap-y-2 sm:grid-cols-2" aria-label="포트폴리오 구성 범례">{slices.map((slice, index) => <li key={slice.key} onMouseEnter={() => setHovered(slice.key)} onMouseLeave={() => setHovered(null)}>{slice.ticker ? <Link href={`/stocks/${slice.ticker.toLowerCase()}`} className="flex min-w-0 items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-slate-50"><Legend slice={slice} index={index} /></Link> : <div className="flex min-w-0 items-center gap-3 px-2 py-2 text-sm"><Legend slice={slice} index={index} /></div>}</li>)}</ol>
   </div>;
 }
+
+function Legend({ slice, index }: { slice: Slice; index: number }) { return <><span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: slice.color }} /><span className="min-w-0 flex-1 truncate font-bold"><span className="mr-1 text-slate-400">{slice.key === "other" ? "" : `${index + 1}.`}</span>{slice.label}</span><span className="shrink-0 font-mono text-xs text-slate-500">{formatPercent(slice.weight)}</span></>; }

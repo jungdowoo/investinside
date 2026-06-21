@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "FolioInside",
-  description: "SEC Form 13F 공개 공시로 살펴보는 기관투자자 포트폴리오",
+  name: "Investinfo",
+  description: "워런 버핏, 국민연금 등 세계 투자자와 기관의 SEC 13F 포트폴리오를 한글로 살펴보는 투자 정보 서비스",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   disclaimer:
     "본 사이트는 SEC EDGAR 및 Form 13F 공개 공시 자료를 기반으로 한 정보 제공 사이트입니다. 본 자료는 투자 추천, 매수·매도 권유, 금융 자문이 아닙니다. 13F 공시는 분기별 지연 공개 자료이며, 현재 보유 현황과 다를 수 있습니다. SEC 13F 데이터는 제출자가 제공한 자료를 기반으로 하며 정확성이 보장되지 않을 수 있습니다. 투자 판단과 책임은 이용자 본인에게 있습니다.",

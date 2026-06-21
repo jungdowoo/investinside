@@ -8,7 +8,7 @@ import { calculateOverlap } from "@/lib/holdings/overlap";
 import { formatStockLabel } from "@/lib/stock-labels";
 
 function warn(error: unknown) {
-  if (process.env.NODE_ENV !== "production") console.warn("FolioInside data query:", error);
+  if (process.env.NODE_ENV !== "production") console.warn("Investinfo data query:", error);
 }
 
 type PublicClient = ReturnType<typeof createPublicClient>;

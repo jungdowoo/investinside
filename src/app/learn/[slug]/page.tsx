@@ -7,7 +7,7 @@ import { Container, Pill } from "@/components/ui";
 import { getLearnPost, learnPosts } from "@/content/learn/posts";
 
 export function generateStaticParams() { return learnPosts.map((post) => ({ slug: post.slug })); }
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { const { slug } = await params; const post = getLearnPost(slug); return post ? { title: post.title, description: post.description } : {}; }
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { const { slug } = await params; const post = getLearnPost(slug); return post ? { title: post.title, description: post.description, keywords: [post.title, post.category, "주식 용어", "투자 용어", "SEC 13F"], alternates: { canonical: `/learn/${post.slug}` }, openGraph: { type: "article", title: post.title, description: post.description } } : {}; }
 
 export default async function LearnDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params; const post = getLearnPost(slug); if (!post) notFound();

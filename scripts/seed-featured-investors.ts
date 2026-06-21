@@ -73,6 +73,15 @@ const candidates = [
     description: "Seth Klarman과 관련해 알려진 Baupost Group의 SEC Form 13F 공개 공시를 정리합니다. 개인 계좌나 전체 자산을 나타내지 않습니다.",
     style: "Baupost Group 제출 13F 추적",
   },
+  {
+    cik: "0001608046",
+    slug: "national-pension-service-korea",
+    display_name: "국민연금 (National Pension Service)",
+    investor_name: "National Pension Service",
+    expectedName: "NATIONAL PENSION SERVICE",
+    description: "대한민국 국민연금공단이 미국 SEC에 제출한 Form 13F 공개 공시를 정리합니다. 국내 전체 운용자산이 아니라 13F 보고 대상 미국 상장 증권 범위만 나타냅니다.",
+    style: "국민연금공단 제출 13F 추적",
+  },
 ] as const;
 
 type Submission = {
