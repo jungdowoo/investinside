@@ -17,5 +17,5 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const jsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description, inLanguage: "ko-KR", potentialAction: { "@type": "SearchAction", target: `${siteConfig.url}/stocks?q={search_term_string}`, "query-input": "required name=search_term_string" } };
-  return <html lang="ko"><body className="flex min-h-screen flex-col"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} /><SiteHeader /><main className="flex-1">{children}</main><SiteFooter /></body></html>;
+  return <html lang="ko"><body className="flex min-h-screen flex-col antialiased"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} /><SiteHeader /><main className="flex-1">{children}</main><SiteFooter /></body></html>;
 }

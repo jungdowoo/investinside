@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8f6f1;
-  --foreground: #1f2933;
-  --paper: #fffdf8;
-  --line: #e5dfd3;
-  --muted: #667085;
-  --accent: #0f766e;
-  --accent-ink: #0b4f4a;
+  --background: #fafaf9;
+  --foreground: #18181b;
+  --paper: #ffffff;
+  --line: #e4e4e7;
+  --muted: #71717a;
+  --accent: #b45309;
+  --accent-ink: #92400e;
 }
 @theme inline {
   --color-background: var(--background);
@@ -18,25 +18,24 @@
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 22rem),
-    repeating-linear-gradient(90deg, rgba(31,41,51,.025) 0 1px, transparent 1px 96px),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
   font-family: Inter, Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-a { transition: color 150ms, background-color 150ms, border-color 150ms, box-shadow 150ms, transform 150ms; }
+a { transition: color 150ms, background-color 150ms, border-color 150ms, opacity 150ms; }
 summary { cursor: pointer; }
-::selection { background: #d8f3ee; color: #0b4f4a; }
+::selection { background: rgba(217,119,6,0.15); color: #92400e; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button, input, textarea, select { font: inherit; }
 .tracking-tight,
 .tracking-\[-\.04em\],
 .tracking-\[-\.045em\],
 .tracking-\[-0\.025em\] { letter-spacing: 0; }
-.prose-fi h2 { margin-top: 2.5rem; font-size: 1.5rem; font-weight: 900; letter-spacing: 0; color: #1c1917; }
-.prose-fi h3 { margin-top: 2rem; font-size: 1.15rem; font-weight: 800; color: #1c1917; }
-.prose-fi p { margin-top: 1rem; line-height: 1.9; color: #57534e; }
-.prose-fi ul { margin-top: 1rem; list-style: disc; padding-left: 1.4rem; color: #57534e; }
+.prose-fi h2 { margin-top: 2.5rem; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: #18181b; }
+.prose-fi h3 { margin-top: 2rem; font-size: 1.15rem; font-weight: 600; color: #18181b; }
+.prose-fi p { margin-top: 1rem; line-height: 1.85; color: #52525b; }
+.prose-fi ul { margin-top: 1rem; list-style: disc; padding-left: 1.4rem; color: #52525b; }
 .prose-fi li { margin-top: .5rem; line-height: 1.75; }

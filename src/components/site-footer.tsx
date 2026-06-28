@@ -5,13 +5,13 @@ const trust = [["서비스 소개", "/about"], ["데이터 방법론", "/methodo
 const legal = [["이용약관", "/terms"], ["개인정보처리방침", "/privacy"], ["면책고지", "/disclaimer"]] as const;
 
 export function SiteFooter() {
-  return <footer className="mt-auto border-t border-stone-200 bg-stone-950 text-stone-300">
+  return <footer className="mt-auto border-t border-zinc-200 bg-zinc-900 text-zinc-400">
     <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr_1fr] lg:px-8">
-      <div><p className="text-xl font-black text-white">Invest<span className="text-teal-300">info</span></p><p className="mt-4 max-w-sm text-sm leading-7 text-stone-400">SEC EDGAR 공개 공시를 바탕으로 투자자 포트폴리오와 기업 재무 정보를 이해하기 쉽게 정리합니다. 투자 권유나 실시간 시세 서비스가 아닙니다.</p></div>
+      <div><p className="text-lg font-bold text-white">Invest<span className="text-amber-400">info</span></p><p className="mt-4 max-w-sm text-sm leading-7 text-zinc-500">SEC EDGAR 공개 공시를 바탕으로 투자자 포트폴리오와 기업 재무 정보를 이해하기 쉽게 정리합니다. 투자 권유나 실시간 시세 서비스가 아닙니다.</p></div>
       <FooterLinks title="서비스" links={service} /><FooterLinks title="운영 정보" links={trust} /><FooterLinks title="정책" links={legal} />
     </div>
-    <div className="border-t border-stone-800 px-4 py-5 text-center text-xs text-stone-500">© {new Date().getFullYear()} Investinfo. SEC 공개 공시 기반 정보·교육 서비스.</div>
+    <div className="border-t border-zinc-800 px-4 py-5 text-center text-xs text-zinc-600">© {new Date().getFullYear()} Investinfo. SEC 공개 공시 기반 정보·교육 서비스.</div>
   </footer>;
 }
 
-function FooterLinks({ title, links }: { title: string; links: readonly (readonly [string, string])[] }) { return <nav><p className="mb-4 text-sm font-black text-white">{title}</p><div className="space-y-3">{links.map(([label, href]) => <Link key={href} href={href} className="block text-sm text-stone-400 hover:text-white">{label}</Link>)}</div></nav>; }
+function FooterLinks({ title, links }: { title: string; links: readonly (readonly [string, string])[] }) { return <nav><p className="mb-4 text-sm font-semibold text-zinc-300">{title}</p><div className="space-y-3">{links.map(([label, href]) => <Link key={href} href={href} className="block text-sm text-zinc-500 hover:text-white">{label}</Link>)}</div></nav>; }
