@@ -1,41 +1,65 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
-  --background: #fafaf9;
-  --foreground: #18181b;
+  --background: #f8fafc;
+  --foreground: #0f172a;
   --paper: #ffffff;
-  --line: #e4e4e7;
-  --muted: #71717a;
-  --accent: #b45309;
-  --accent-ink: #92400e;
 }
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --paper: #18181b;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-sans), Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+
+  /* Startup style shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
 }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Inter, Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
-  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  letter-spacing: -0.015em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-a { transition: color 150ms, background-color 150ms, border-color 150ms, opacity 150ms; }
+
+/* Base styles to automatically add dark mode inverted colors for common patterns without modifying every single class */
+.dark body {
+  background-color: #09090b; /* zinc-950 */
+  color: #fafafa; /* zinc-50 */
+}
+
+/* Startup UI styling: smooth transitions and bouncy feel */
+a, button, input { transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1); }
 summary { cursor: pointer; }
-::selection { background: rgba(217,119,6,0.15); color: #92400e; }
+::selection { background: rgba(217,119,6,0.25); color: #b45309; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button, input, textarea, select { font: inherit; }
+
 .tracking-tight,
 .tracking-\[-\.04em\],
 .tracking-\[-\.045em\],
 .tracking-\[-0\.025em\] { letter-spacing: 0; }
-.prose-fi h2 { margin-top: 2.5rem; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: #18181b; }
-.prose-fi h3 { margin-top: 2rem; font-size: 1.15rem; font-weight: 600; color: #18181b; }
-.prose-fi p { margin-top: 1rem; line-height: 1.85; color: #52525b; }
-.prose-fi ul { margin-top: 1rem; list-style: disc; padding-left: 1.4rem; color: #52525b; }
+
+.prose-fi h2 { margin-top: 2.5rem; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+.prose-fi h3 { margin-top: 2rem; font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; }
+.prose-fi p { margin-top: 1rem; line-height: 1.85; }
+.prose-fi ul { margin-top: 1rem; list-style: disc; padding-left: 1.4rem; }
 .prose-fi li { margin-top: .5rem; line-height: 1.75; }
+
+/* In dark mode, prose text needs inversion too */
+.dark .prose-fi h2, .dark .prose-fi h3 { color: #f4f4f5; }
+.dark .prose-fi p, .dark .prose-fi ul, .dark .prose-fi li { color: #a1a1aa; }

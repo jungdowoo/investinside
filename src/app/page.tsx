@@ -4,36 +4,130 @@ import { InvestorAvatar } from "@/components/investor-avatar";
 import { StockLabelLink } from "@/components/stock-label-link";
 import { Container, EmptyState, Pill, SectionTitle } from "@/components/ui";
 import { learnPosts } from "@/content/learn/posts";
-import { getInvestors, getOverlap, getRecentFilings, getRecentNewPositions } from "@/lib/data/public";
+import { getInvestors, getOverlap, getRecentFilings } from "@/lib/data/public";
 import { formatDate } from "@/lib/format";
-import { formatMoneyDual } from "@/lib/exchange-rate";
 
 export default async function HomePage() {
-  const [investors, filings, overlap, newPositions] = await Promise.all([getInvestors(), getRecentFilings(5), getOverlap(), getRecentNewPositions(6)]);
-  return <>
-    <section className="border-b border-zinc-200 bg-white"><Container className="grid items-center gap-12 py-16 sm:py-24 lg:grid-cols-[1.05fr_.95fr] lg:py-24"><div>
-      <div className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600">SEC 13F 공식 공시 기반</div>
-      <h1 className="mt-6 max-w-3xl text-3xl font-extrabold leading-[1.16] text-zinc-900 sm:text-6xl sm:leading-[1.12]">세계적인 투자자들의<br /><span className="text-amber-600">공개 포트폴리오 리서치</span></h1>
-      <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-500">워런 버핏부터 국민연금까지, 공개된 미국 주식 보유 내역과 분기별 변화를 차분하게 비교해보세요.</p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link href="/investors" className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-3 text-sm font-semibold text-white hover:bg-zinc-800">포트폴리오 보기 <ArrowRight className="size-4" /></Link>
-        <Link href="/stocks" className="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50"><Search className="size-4" /> 종목 검색</Link>
+  const [investors, filings, overlap] = await Promise.all([getInvestors(), getRecentFilings(5), getOverlap()]);
+
+  return (
+    <>
+      <section className="relative overflow-hidden bg-white dark:bg-[#09090b]">
+        <div className="absolute inset-x-0 top-0 h-[500px] bg-gradient-to-b from-amber-500/10 to-transparent dark:from-amber-500/5" />
+
+        <Container className="relative grid items-center gap-12 py-20 sm:py-32 lg:grid-cols-[1.1fr_.9fr] lg:py-32">
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/50 bg-amber-50/50 px-4 py-1.5 text-xs font-bold text-amber-700 backdrop-blur-sm dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-400">
+              <Sparkles className="size-3.5" /> SEC 13F 공식 공시 기반
+            </div>
+            <h1 className="mt-8 max-w-3xl text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-6xl sm:leading-[1.1]">
+              세계적인 투자자들의<br />
+              <span className="bg-gradient-to-r from-amber-600 to-amber-500 bg-clip-text text-transparent dark:from-amber-400 dark:to-amber-500">포트폴리오 리서치</span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-500 dark:text-zinc-400">
+              워런 버핏부터 국민연금까지, 공개된 미국 주식 보유 내역과 분기별 변화를 트렌디하고 차분하게 분석해보세요.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link href="/investors" className="group inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-zinc-900/10 transition-all hover:scale-105 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:shadow-none dark:hover:bg-zinc-100">
+                포트폴리오 보기
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link href="/stocks" className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-3.5 text-sm font-bold text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800">
+                <Search className="size-4" /> 종목 검색
+              </Link>
+            </div>
+            <div className="mt-12 grid max-w-2xl grid-cols-3 gap-6 border-t border-zinc-100 pt-8 dark:border-zinc-800/50">
+              <div><p className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">{investors.length}곳</p><p className="mt-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">추적 투자자·기관</p></div>
+              <div><p className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">분기별</p><p className="mt-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">공시 변화 비교</p></div>
+              <div><p className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">100%</p><p className="mt-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">SEC 원문 매칭</p></div>
+            </div>
+          </div>
+
+          <div className={`grid gap-4 animate-in fade-in slide-in-from-right-8 duration-1000 delay-150 fill-mode-both ${investors.length > 1 ? "grid-cols-2" : "mx-auto w-full max-w-sm"}`}>
+            {investors.slice(0, 4).map((investor) => (
+              <Link key={investor.id} href={`/investors/${investor.slug}`} className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-amber-500/50 dark:hover:bg-zinc-800/80">
+                <InvestorAvatar slug={investor.slug} name={investor.display_name} className="aspect-square w-full rounded-xl" />
+                <p className="mt-5 line-clamp-1 text-base font-bold text-zinc-900 dark:text-zinc-100">{investor.display_name}</p>
+                <p className="mt-1 line-clamp-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{investor.firm_name}</p>
+              </Link>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      <div className="bg-zinc-50 dark:bg-[#09090b]">
+        <Container className="space-y-24 py-20 sm:py-28">
+          <section>
+            <SectionTitle title="주요 투자자 포트폴리오" description="미국 증권거래위원회(SEC)에 실제로 제출된 13F 공시 원본을 바탕으로 제공됩니다." href="/investors" />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {investors.slice(0, 6).map((investor) => (
+                <Link key={investor.id} href={`/investors/${investor.slug}`} className="group flex items-center gap-5 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-amber-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-amber-500/50">
+                  <InvestorAvatar slug={investor.slug} name={investor.display_name} className="size-16 rounded-xl" />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-lg font-bold text-zinc-900 transition-colors group-hover:text-amber-600 dark:text-zinc-100 dark:group-hover:text-amber-400">{investor.display_name}</h3>
+                    <p className="mt-1 truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">{investor.firm_name}</p>
+                  </div>
+                  <ArrowRight className="size-5 text-zinc-300 transition-transform group-hover:translate-x-1 group-hover:text-amber-500 dark:text-zinc-600" />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="grid gap-8 lg:grid-cols-2">
+            <div>
+              <SectionTitle title="최근 업데이트된 공시" description="가장 최근에 추가되거나 변경된 13F 문서" />
+              {filings.length ? (
+                <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                  {filings.map((filing) => (
+                    <Link key={filing.id} href={`/investors/${filing.investor?.slug}`} className="flex items-center justify-between gap-4 border-b border-zinc-100 p-5 transition-colors last:border-0 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50">
+                      <div>
+                        <p className="font-bold text-zinc-900 dark:text-zinc-100">{filing.investor?.display_name ?? "기관"}</p>
+                        <p className="mt-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">보고 기준일 {formatDate(filing.report_date)}</p>
+                      </div>
+                      <span className="flex items-center gap-1.5 rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                        <CalendarDays className="size-3.5" /> {formatDate(filing.filing_date)}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : <EmptyState title="수집된 공시가 없습니다" description="최신 SEC 13F 수집 후 표시됩니다." />}
+            </div>
+
+            <div>
+              <SectionTitle title="여러 기관이 공통 보유한 종목" description="2곳 이상의 주요 투자자가 동시에 투자한 종목" href="/overlap" />
+              {overlap.length ? (
+                <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                  {overlap.slice(0, 5).map((item) => (
+                    <div key={item.key} className="flex items-center justify-between gap-4 border-b border-zinc-100 p-5 last:border-0 dark:border-zinc-800">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-bold text-zinc-900 dark:text-zinc-100"><StockLabelLink ticker={item.ticker} issuerName={item.issuerName} /></p>
+                        <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{item.ticker ? `CUSIP ${item.cusip}` : "ticker 미확인"}</p>
+                      </div>
+                      <Pill tone="blue">{item.owners.length}곳 보유</Pill>
+                    </div>
+                  ))}
+                </div>
+              ) : <EmptyState title="겹치는 종목이 없습니다" description="2개 이상의 기관 데이터가 있을 때 계산됩니다." />}
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle title="인사이트가 담긴 투자가이드" description="투자 전 반드시 알아야 할 13F 공시의 한계와 주의사항" href="/learn" />
+            <div className="grid gap-6 md:grid-cols-3">
+              {learnPosts.slice(0, 3).map((post, index) => (
+                <Link key={post.slug} href={`/learn/${post.slug}`} className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-7 shadow-sm transition-all hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-amber-500/50">
+                  <div className="grid size-12 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-500">
+                    {index === 0 ? <BookOpen className="size-6" /> : <Layers3 className="size-6" />}
+                  </div>
+                  <p className="mt-6 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">{post.category}</p>
+                  <h3 className="mt-2.5 text-xl font-bold leading-tight text-zinc-900 transition-colors group-hover:text-amber-600 dark:text-zinc-100 dark:group-hover:text-amber-400">{post.title}</h3>
+                  <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">{post.description}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        </Container>
       </div>
-      <div className="mt-10 grid max-w-2xl grid-cols-3 gap-3 border-t border-zinc-200 pt-6">
-        <div><p className="text-2xl font-bold text-zinc-900">{investors.length}곳</p><p className="mt-1 text-xs font-medium text-zinc-500">추적 투자자·기관</p></div>
-        <div><p className="text-2xl font-bold text-zinc-900">분기별</p><p className="mt-1 text-xs font-medium text-zinc-500">공시 변화 비교</p></div>
-        <div><p className="text-2xl font-bold text-zinc-900">100%</p><p className="mt-1 text-xs font-medium text-zinc-500">SEC 공개 원문</p></div>
-      </div>
-    </div>
-      <div className={`grid gap-3 border border-zinc-200 bg-zinc-50/50 p-3 sm:p-4 ${investors.length > 1 ? "grid-cols-2" : "mx-auto w-full max-w-sm"}`}>{investors.slice(0, 4).map((investor) => <Link key={investor.id} href={`/investors/${investor.slug}`} className="rounded-md border border-zinc-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-md"><InvestorAvatar slug={investor.slug} name={investor.display_name} className="aspect-square w-full rounded-md" /><p className="mt-4 line-clamp-1 text-sm font-semibold text-zinc-900">{investor.display_name}</p><p className="mt-1 line-clamp-1 text-xs text-zinc-500">{investor.firm_name}</p></Link>)}</div>
-    </Container></section>
-    <Container className="space-y-16 py-14 sm:py-20">
-      <section><SectionTitle title="주요 투자자 포트폴리오" description="인물과 관련된 실제 SEC 제출 기관의 최신 13F를 기준으로 합니다." href="/investors" /><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{investors.slice(0, 6).map((investor) => <Link key={investor.id} href={`/investors/${investor.slug}`} className="group flex items-center gap-4 rounded-md border border-zinc-200 bg-white p-4 hover:border-zinc-300 hover:bg-zinc-50"><InvestorAvatar slug={investor.slug} name={investor.display_name} className="size-16 rounded-md" /><div className="min-w-0 flex-1"><h3 className="truncate font-semibold text-zinc-900 group-hover:text-amber-700">{investor.display_name}</h3><p className="mt-1 truncate text-xs text-zinc-500">{investor.firm_name}</p></div><ArrowRight className="size-4 text-zinc-300 group-hover:text-amber-600" /></Link>)}</div></section>
-      <section className="grid gap-8 lg:grid-cols-2"><div><SectionTitle title="최근 제출된 13F" description="SEC 제출일 기준 최신 공시" />{filings.length ? <div className="overflow-hidden rounded-md border border-zinc-200 bg-white">{filings.map((filing) => <Link key={filing.id} href={`/investors/${filing.investor?.slug}`} className="flex items-center justify-between gap-4 border-b border-zinc-100 p-4 last:border-0 hover:bg-zinc-50"><div><p className="font-semibold text-zinc-800">{filing.investor?.display_name ?? "기관"}</p><p className="mt-1 text-xs text-zinc-500">보고 기준일 {formatDate(filing.report_date)}</p></div><span className="flex items-center gap-1 text-xs font-medium text-zinc-500"><CalendarDays className="size-4" /> {formatDate(filing.filing_date)}</span></Link>)}</div> : <EmptyState title="수집된 공시가 없습니다" description="최신 SEC 13F 수집 후 표시됩니다." />}</div>
-        <div><SectionTitle title="여러 기관이 함께 보유" description="최신 보고 분기의 CUSIP 기준" href="/overlap" />{overlap.length ? <div className="overflow-hidden rounded-md border border-zinc-200 bg-white">{overlap.slice(0, 5).map((item) => <div key={item.key} className="flex items-center justify-between gap-4 border-b border-zinc-100 p-4 last:border-0"><div className="min-w-0"><p className="truncate font-semibold text-zinc-800"><StockLabelLink ticker={item.ticker} issuerName={item.issuerName} /></p><p className="mt-1 text-xs text-zinc-500">{item.ticker ? `CUSIP ${item.cusip}` : "ticker 미확인"}</p></div><Pill tone="blue">{item.owners.length}개 기관</Pill></div>)}</div> : <EmptyState title="겹치는 종목이 없습니다" description="2개 이상의 기관 데이터가 있을 때 계산됩니다." />}</div></section>
-      <section><SectionTitle title="최근 분기 신규 편입" description="이전 정보표에는 없고 현재 분기에 나타난 CUSIP 기준" />{newPositions.length ? <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">{newPositions.map((item) => <div key={`${item.current_filing_id}-${item.cusip}`} className="rounded-md border border-zinc-200 bg-white p-5"><Sparkles className="size-5 text-amber-600" /><p className="mt-3 line-clamp-1 font-semibold"><StockLabelLink ticker={item.ticker} issuerName={item.issuer_name} /></p><p className="mt-2 text-xs text-zinc-500">{item.investor?.display_name} · {formatMoneyDual(item.current_value_usd)}</p></div>)}</div> : <EmptyState title="비교 가능한 신규 편입 데이터가 없습니다" description="최소 두 개 분기가 수집되면 표시됩니다." />}</section>
-      <section><SectionTitle title="투자를 이해하는 기본 가이드" description="공시를 매매 신호로 오해하지 않기 위한 핵심 개념" href="/learn" /><div className="grid gap-4 md:grid-cols-3">{learnPosts.slice(0, 3).map((post, index) => <Link key={post.slug} href={`/learn/${post.slug}`} className="group rounded-md border border-zinc-200 bg-white p-6 hover:border-zinc-300 hover:bg-zinc-50"><div className="grid size-10 place-items-center rounded-md bg-zinc-900 text-amber-300">{index === 0 ? <BookOpen className="size-5" /> : <Layers3 className="size-5" />}</div><p className="mt-5 text-xs font-semibold uppercase tracking-widest text-amber-700">{post.category}</p><h3 className="mt-2 text-xl font-bold leading-8 group-hover:text-amber-700">{post.title}</h3><p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-500">{post.description}</p></Link>)}</div></section>
-      <aside className="rounded-md border border-zinc-200 bg-zinc-50 px-5 py-4 text-sm leading-6 text-zinc-500">Investinfo는 정보 제공 및 교육 목적의 서비스이며 투자 자문이나 매수·매도 권유를 제공하지 않습니다. 13F는 분기 말 기준의 지연 공개 자료입니다.</aside>
-    </Container>
-  </>;
+    </>
+  );
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { ThemeProvider } from "@/components/theme-provider";
+import { CookieConsent } from "@/components/cookie-consent";
 import { siteConfig } from "@/lib/config";
 import "./globals.css";
 
@@ -13,9 +15,22 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "Investinfo | 세계 투자자 포트폴리오", description: siteConfig.description },
   robots: { index: true, follow: true },
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } : undefined,
+  other: process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ACCOUNT ? { "google-adsense-account": process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ACCOUNT } : undefined,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const jsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: siteConfig.name, url: siteConfig.url, description: siteConfig.description, inLanguage: "ko-KR", potentialAction: { "@type": "SearchAction", target: `${siteConfig.url}/stocks?q={search_term_string}`, "query-input": "required name=search_term_string" } };
-  return <html lang="ko"><body className="flex min-h-screen flex-col antialiased"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} /><SiteHeader /><main className="flex-1">{children}</main><SiteFooter /></body></html>;
+  return (
+    <html lang="ko" suppressHydrationWarning>
+      <body className="flex min-h-screen flex-col antialiased">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+          <CookieConsent />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
 }

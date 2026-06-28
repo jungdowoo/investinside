@@ -6,18 +6,50 @@ export function Container({ children, className = "" }: { children: ReactNode; c
 }
 
 export function PageHeader({ eyebrow, title, description }: { eyebrow?: string; title: string; description: string }) {
-  return <div className="max-w-3xl py-10 sm:py-14">{eyebrow && <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-amber-700">{eyebrow}</p>}<h1 className="text-3xl font-extrabold leading-tight text-zinc-900 sm:text-5xl">{title}</h1><p className="mt-4 text-base leading-7 text-zinc-500 sm:text-lg">{description}</p></div>;
+  return (
+    <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 py-12 duration-700 sm:py-20">
+      {eyebrow && <p className="mb-4 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">{eyebrow}</p>}
+      <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-6xl sm:leading-[1.1]">{title}</h1>
+      <p className="mt-6 text-lg leading-8 text-zinc-500 dark:text-zinc-400 sm:text-xl">{description}</p>
+    </div>
+  );
 }
 
 export function SectionTitle({ title, description, href, linkLabel = "전체 보기" }: { title: string; description?: string; href?: string; linkLabel?: string }) {
-  return <div className="mb-5 flex items-end justify-between gap-4"><div><h2 className="text-xl font-bold leading-tight text-zinc-900 sm:text-2xl">{title}</h2>{description && <p className="mt-1 text-sm leading-6 text-zinc-500">{description}</p>}</div>{href && <Link href={href} className="shrink-0 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50">{linkLabel} →</Link>}</div>;
+  return (
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-3xl">{title}</h2>
+        {description && <p className="mt-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400 sm:text-base">{description}</p>}
+      </div>
+      {href && (
+        <Link href={href} className="group inline-flex shrink-0 items-center rounded-full bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-700 transition-all hover:bg-zinc-200 hover:text-zinc-900 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-100">
+          {linkLabel} <span className="ml-1 inline-block transition-transform group-hover:translate-x-0.5">→</span>
+        </Link>
+      )}
+    </div>
+  );
 }
 
 export function EmptyState({ title, description }: { title: string; description: string }) {
-  return <div className="rounded-md border border-dashed border-zinc-300 bg-white px-5 py-10 text-center"><p className="font-semibold text-zinc-700">{title}</p><p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-zinc-500">{description}</p></div>;
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/50 px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-900/50">
+      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 dark:bg-zinc-800">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+      </div>
+      <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{title}</p>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500 dark:text-zinc-400">{description}</p>
+    </div>
+  );
 }
 
 export function Pill({ children, tone = "slate" }: { children: ReactNode; tone?: "slate" | "green" | "red" | "blue" | "amber" }) {
-  const colors = { slate: "border-zinc-200 bg-zinc-50 text-zinc-600", green: "border-emerald-200 bg-emerald-50 text-emerald-700", red: "border-rose-200 bg-rose-50 text-rose-700", blue: "border-sky-200 bg-sky-50 text-sky-700", amber: "border-amber-200 bg-amber-50 text-amber-800" };
-  return <span className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-medium ${colors[tone]}`}>{children}</span>;
+  const colors = {
+    slate: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+    green: "bg-emerald-100/80 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400",
+    red: "bg-rose-100/80 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400",
+    blue: "bg-sky-100/80 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400",
+    amber: "bg-amber-100/80 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400",
+  };
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wide transition-colors ${colors[tone]}`}>{children}</span>;
 }

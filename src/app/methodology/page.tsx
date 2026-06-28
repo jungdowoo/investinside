@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "데이터 방법론", description: "
 export default function MethodologyPage() {
   return <Container className="pb-16">
     <PageHeader eyebrow="Methodology" title="데이터 방법론" description="어떤 원문을 사용하고 무엇을 계산하는지 투명하게 설명합니다." />
-    <article className="prose-fi max-w-4xl rounded-md border border-zinc-200 bg-white p-6 sm:p-10">
+    <article className="prose-fi max-w-4xl rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-6 sm:p-10">
       <h2>원천 자료</h2><p>포트폴리오는 SEC submissions JSON에서 13F-HR 및 13F-HR/A 제출을 확인하고 각 filing의 Information Table XML을 직접 파싱합니다. 기업 정보와 재무 항목은 SEC XBRL companyfacts JSON을 사용합니다. 다른 포트폴리오 집계 사이트의 표나 유료 금융 API를 복제하지 않습니다.</p>
       <h2>보고 가치와 원화 환산</h2><p>13F 정보표의 보고 가치는 천 달러 단위이므로 달러로 환산합니다. 각 행의 포트폴리오 비중은 동일 filing에 포함된 보고 가치 합계를 분모로 계산합니다. 이 비중은 기관 전체 순자산 비중이 아닙니다. 원화는 미국 연방준비제도 H.10의 원/달러 일일 환율을 적용한 참고값이며, 화면에 적용 기준일을 함께 표시합니다.</p>
       <h2>분기 변화와 보고서 제외</h2><p>CUSIP, 증권 종류와 put/call 구분을 중심으로 두 보고 분기를 비교합니다. 이전 분기에 없고 현재 분기에 있으면 신규 편입, 이전에 있고 현재에 없으면 ‘보고서 제외(전량 매도 추정)’로 표시합니다. 실제 거래일·가격이나 매도 완료를 확정할 수 없고, 수정 공시나 식별자 변경의 가능성도 있습니다.</p>
